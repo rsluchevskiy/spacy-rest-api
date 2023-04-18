@@ -1,16 +1,21 @@
 from flask import Flask
 from flask import jsonify
+from flask import request
+import spacy
 
+english_nlp = spacy.load('en_core_web_trf')
 
 app = Flask(__name__)
 
-@app.route('/', methods=['GET'])
+@app.route('/nlp', methods=['POST'])
 def base_url():
-    """Base url to test API."""
+    spacy_parser = english_nlp(request.data.decode("utf-8") )
 
-    response = {
-        'response': 'Hello world!'
-    }
+    response = {}
+
+    for entity in spacy_parser.ents:
+        if entity.label_ in ['ORG', 'PERSON']:
+            response[entity.text] = entity.label_
 
     return jsonify(response)
 
